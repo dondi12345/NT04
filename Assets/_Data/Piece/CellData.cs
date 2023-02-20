@@ -13,4 +13,18 @@ public class CellData
         this.position = position;
         this.tile = tile;
     }
+
+    public CellData(CellData cellData){
+        this.position = cellData.position;
+        this.tile = cellData.tile;
+    }
+
+    public static CellData[] Copy(CellData[] cellDatasIn){
+        CellData[] cellDatas = new CellData[cellDatasIn.Length];
+        for (int i = 0; i < cellDatasIn.Length; i++)
+        {
+            cellDatas[i] = new CellData(cellDatasIn[i]);
+        }
+        return cellDatas;
+    }
 }

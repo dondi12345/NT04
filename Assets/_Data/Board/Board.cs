@@ -7,7 +7,9 @@ public class Board : LoadBehaviour
 {
     public Tilemap tilemap;
     // public Piece activePiece { get; private set; }
-    public Vector3Int spawnPosition = new Vector3Int(-1, 8, 0);
+    public Piece piece;
+
+    public bool isWorking = false;
 
     public RectInt Bounds {
         get
@@ -27,12 +29,84 @@ public class Board : LoadBehaviour
         tilemap = GetComponentInChildren<Tilemap>();
     }
 
+    public void ClearLines()
+    {
+        RectInt bounds = Bounds;
+        int row = bounds.yMin;
+
+        // Clear from bottom to top
+        while (row < bounds.yMax)
+        {
+            // Only advance to the next row if the current is not cleared
+            // because the tiles above will fall down when a row is cleared
+            if (IsLineFull(row)) {
+                LineClear(row);
+            } else {
+                row++;
+            }
+        }
+    }
+
+    public bool IsLineFull(int row)
+    {
+        RectInt bounds = Bounds;
+
+        for (int col = bounds.xMin; col < bounds.xMax; col++)
+        {
+            Vector3Int position = new Vector3Int(col, row, 0);
+
+            // The line is not full if a tile is missing
+            if (!tilemap.HasTile(position)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void LineClear(int row)
+    {
+        RectInt bounds = Bounds;
+
+        // Clear all tiles in the row
+        for (int col = bounds.xMin; col < bounds.xMax; col++)
+        {
+            Vector3Int position = new Vector3Int(col, row, 0);
+            tilemap.SetTile(position, null);
+        }
+
+        // Shift every row above down one
+        while (row < bounds.yMax)
+        {
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int position = new Vector3Int(col, row + 1, 0);
+                TileBase above = tilemap.GetTile(position);
+
+                position = new Vector3Int(col, row, 0);
+                tilemap.SetTile(position, above);
+            }
+
+            row++;
+        }
+    }
+
     public void Set(Piece piece)
     {
-        for (int i = 0; i < piece.cells.Length; i++)
+        this.isWorking = true;
+        if(piece == null) return;
+        for (int i = 0; i < piece.cellDatas.Length; i++)
         {
-            Vector3Int tilePosition = piece.cells[i] + piece.position;
+            Vector3Int tilePosition = piece.cellDatas[i].position + piece.position;
             tilemap.SetTile(tilePosition, piece.data.tile);
         }
+        this.ClearLines();
+        this.isWorking = false;
+    }
+
+    public void Replay(){
+        this.tilemap.ClearAllTiles();
+        this.isWorking = false;
+        this.piece = null;
     }
 }

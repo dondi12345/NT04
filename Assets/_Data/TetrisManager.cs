@@ -10,7 +10,9 @@ public class TetrisManager : LoadBehaviour
     public Vector2Int boardSize = new Vector2Int(10, 20);
     public Ghost ghost;
     public Piece activePiece;
-    public Piece chosePiece;
+
+    public bool isPieceInStack = false;
+    public bool isGameOver = false;
 
     public Vector3Int spawnPosition = new Vector3Int(-1, 8, 0);
 
@@ -53,23 +55,21 @@ public class TetrisManager : LoadBehaviour
 
     protected void LoadActivePiece(){
         activePiece = transform.Find("ActivePiece").GetComponent<Piece>();
-        chosePiece = transform.Find("ChosePiece").GetComponent<Piece>();
     }
 
-    protected override void Start()
+    protected override void FixedUpdate()
     {
+        if(this.ghost.isWorking) return;
+        if(this.waiting.isWorking) return;
+        if(this.board.isWorking) return;
+        if(this.isGameOver) return;
         this.SpawnPiece();
     }
 
     public void SpawnPiece(){
-        this.SpawnActivePiece();
-        this.SpanwChosePiece();
-    }
-
-    public void SpawnActivePiece()
-    {
         int random = Random.Range(0, tetrominoes.Length);
         TetrominoData data = tetrominoes[random];
+        // TetrominoData data = tetrominoes[1];
 
         activePiece.Initialize(spawnPosition, data);
         // this.board.Set(activePiece);
@@ -79,18 +79,16 @@ public class TetrisManager : LoadBehaviour
         } else {
             this.GameOver();
         }
+        this.ghost.SetGuess(activePiece);
     }
 
-    public void SpanwChosePiece(){
-
-        this.chosePiece.Initialize(this.Drop(this.activePiece), this.activePiece.data);
-        this.ghost.Set(chosePiece);
+    public void SetWaiting(Vector3Int position){
+        this.waiting.Initialize(this.activePiece, position);
     }
 
-    private Vector3Int Drop(Piece piece)
+    public Vector3Int Drop(Piece piece, Vector3Int position)
     {
-        Vector3Int position = piece.position;
-        Vector3Int positionValid = piece.position;
+        Vector3Int positionValid = position;
 
         int current = position.y;
         int bottom = -this.boardSize.y / 2 - 1;
@@ -108,23 +106,14 @@ public class TetrisManager : LoadBehaviour
         return positionValid;
     }
 
-
-
-    public void Down(){
-        this.board.Set(this.chosePiece);
-        this.waiting.Clear();
-        this.ghost.Clear();
-        this.SpawnPiece();
-    }
-
     public bool IsValidPosition(Piece piece, Vector3Int position)
     {
         RectInt bounds = Bounds;
 
         // The position is only valid if every cell is valid
-        for (int i = 0; i < piece.cells.Length; i++)
+        for (int i = 0; i < piece.cellDatas.Length; i++)
         {
-            Vector3Int tilePosition = piece.cells[i] + position;
+            Vector3Int tilePosition = piece.cellDatas[i].position + position;
 
             // An out of bounds tile is invalid
             if (!bounds.Contains((Vector2Int)tilePosition)) {
@@ -141,7 +130,15 @@ public class TetrisManager : LoadBehaviour
     }
 
     public void GameOver(){
-        this.board.tilemap.ClearAllTiles();
+        this.isGameOver = true;
+        Debug.LogWarning("Game Over");
+    }
+
+    public void Replay(){
+        this.board.Replay();
+        this.ghost.Replay();
+        this.waiting.Replay();
+        this.isGameOver = false;
     }
 
 }
