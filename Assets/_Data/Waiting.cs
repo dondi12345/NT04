@@ -62,6 +62,7 @@ public class Waiting : LoadBehaviour
             this.countDelayMove = 0;
             this.Set(this.piece);
         }else{
+            this.tilemap.ClearAllTiles();
             TetrisManager.instance.board.Set(this.piece);
             this.piece = null;
             this.isWorking = false;

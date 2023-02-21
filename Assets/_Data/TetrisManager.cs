@@ -7,14 +7,14 @@ public class TetrisManager : LoadBehaviour
     public TetrominoData[] tetrominoes;
     public Board board;
     public Waiting waiting;
-    public Vector2Int boardSize = new Vector2Int(10, 20);
+    public Vector2Int boardSize = new Vector2Int(8, 18);
     public Ghost ghost;
     public Piece activePiece;
 
     public bool isPieceInStack = false;
     public bool isGameOver = false;
 
-    public Vector3Int spawnPosition = new Vector3Int(-1, 8, 0);
+    public Vector3Int spawnPosition = new Vector3Int(0, 7, 0);
 
     public RectInt Bounds {
         get
@@ -82,8 +82,10 @@ public class TetrisManager : LoadBehaviour
         this.ghost.SetGuess(activePiece);
     }
 
-    public void SetWaiting(Vector3Int position){
-        this.waiting.Initialize(this.activePiece, position);
+    public void SetWaiting(PieceData pieceData){
+        this.activePiece.SetData(pieceData);
+        this.activePiece.position = this.spawnPosition;
+        this.waiting.Initialize(this.activePiece, pieceData.position);
     }
 
     public Vector3Int Drop(Piece piece, Vector3Int position)
