@@ -10,7 +10,8 @@ public class NTFunction : LoadBehaviour
         {
             Transform child = trans.GetChild(i);
             child.gameObject.SetActive(false);
-            DestroyImmediate(child.gameObject);
+            Destroy(child.gameObject, 1);
+
         }
     }
 }

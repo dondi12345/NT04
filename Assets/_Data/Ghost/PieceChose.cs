@@ -76,6 +76,10 @@ public class PieceChose : LoadBehaviour
     }
 
     public void UpdateTime(float time){
+        if(time >= 1) {
+            this.Onclick();
+            return;
+        }
         this.mask.localPosition = new Vector3(this.positionMask.x, this.positionMask.y - time * this.height, 0);
     }
 

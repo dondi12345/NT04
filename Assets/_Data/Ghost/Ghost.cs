@@ -167,6 +167,7 @@ public class Ghost : LoadBehaviour
         this.countDelay = 0;
         TetrisManager.instance.SetWaiting(pieceData);
         this.isWorking = false;
+        this.Replay();
     }
 
     public void NexGess(){

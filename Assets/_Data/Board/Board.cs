@@ -101,6 +101,7 @@ public class Board : LoadBehaviour
             tilemap.SetTile(tilePosition, piece.data.tile);
         }
         this.ClearLines();
+        this.SpawnRow();
         this.isWorking = false;
     }
 
@@ -108,5 +109,34 @@ public class Board : LoadBehaviour
         this.tilemap.ClearAllTiles();
         this.isWorking = false;
         this.piece = null;
+    }
+
+    public void SpawnRow(){
+        RectInt bounds = Bounds;
+
+        int row = bounds.yMax;
+        while (row > bounds.yMin)
+        {
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int positionUnder = new Vector3Int(col, row - 1, 0);
+                TileBase under = tilemap.GetTile(positionUnder);
+
+                Vector3Int position = new Vector3Int(col, row, 0);
+                tilemap.SetTile(position, under);
+                
+            }
+            Debug.LogWarning(row);
+            row--;
+        }
+
+        for (int col = bounds.xMin; col < bounds.xMax; col++)
+        {
+            Vector3Int positionBottom = new Vector3Int(col, bounds.yMin, 0);
+            Tile tile = TetrisManager.instance.tetrominoes[Random.Range(0, TetrisManager.instance.tetrominoes.Length)].tile;
+            tilemap.SetTile(positionBottom, tile);
+        }
+        Vector3Int positionNull = new Vector3Int(Random.Range(bounds.xMin, bounds.xMax),bounds.yMin,0);
+        tilemap.SetTile(positionNull, null);
     }
 }

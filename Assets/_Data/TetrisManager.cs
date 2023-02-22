@@ -11,6 +11,10 @@ public class TetrisManager : LoadBehaviour
     public Ghost ghost;
     public Piece activePiece;
 
+    public Tetromino holdTetromino = Tetromino.unknow;
+    public Tetromino activeTetromino = Tetromino.unknow;
+    public List<Tetromino> stackTetromino;
+
     public bool isPieceInStack = false;
     public bool isGameOver = false;
 
@@ -63,12 +67,27 @@ public class TetrisManager : LoadBehaviour
         if(this.waiting.isWorking) return;
         if(this.board.isWorking) return;
         if(this.isGameOver) return;
-        this.SpawnPiece();
+        this.PushStackTetromino();
+        if(this.activeTetromino == Tetromino.unknow){
+            this.activeTetromino = this.stackTetromino[0];
+            this.stackTetromino.RemoveAt(0);
+        }
+        this.PushStackTetromino();
+        this.SpawnPiece(this.activeTetromino);
     }
 
-    public void SpawnPiece(){
+    public void PushStackTetromino(){
+        if(this.stackTetromino.Count >= 3) return;
         int random = Random.Range(0, tetrominoes.Length);
-        TetrominoData data = tetrominoes[random];
+        Tetromino tetromino = tetrominoes[random].tetromino;
+        this.stackTetromino.Add(tetromino);
+        this.PushStackTetromino();
+
+    }
+
+    public void SpawnPiece(Tetromino tetromino){
+        // int random = Random.Range(0, tetrominoes.Length);
+        TetrominoData data = this.GetTetrominoDataByCode(tetromino);
         // TetrominoData data = tetrominoes[1];
 
         activePiece.Initialize(spawnPosition, data);
@@ -86,6 +105,7 @@ public class TetrisManager : LoadBehaviour
         this.activePiece.SetData(pieceData);
         this.activePiece.position = this.spawnPosition;
         this.waiting.Initialize(this.activePiece, pieceData.position);
+        this.activeTetromino = Tetromino.unknow;
     }
 
     public Vector3Int Drop(Piece piece, Vector3Int position)
@@ -141,6 +161,32 @@ public class TetrisManager : LoadBehaviour
         this.ghost.Replay();
         this.waiting.Replay();
         this.isGameOver = false;
+    }
+
+    public void Hold(){
+        if(this.activeTetromino == Tetromino.unknow) return;
+        if(this.holdTetromino != Tetromino.unknow){
+            Tetromino temp = this.holdTetromino;
+            this.holdTetromino = this.activeTetromino;
+            this.activeTetromino = temp;
+            this.ghost.Replay();
+            this.waiting.Replay();
+            return;
+        }
+        this.holdTetromino = this.activeTetromino;
+        this.activeTetromino = this.stackTetromino[0];
+        this.stackTetromino.RemoveAt(0);
+        this.PushStackTetromino();
+        this.ghost.Replay();
+        this.waiting.Replay();
+    }
+
+    public TetrominoData GetTetrominoDataByCode(Tetromino tetromino){
+        for (int i = 0; i < tetrominoes.Length; i++)
+        {
+            if(tetrominoes[i].tetromino == tetromino) return tetrominoes[i];
+        }
+        return this.tetrominoes[0];
     }
 
 }

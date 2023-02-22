@@ -10,7 +10,8 @@ public enum Tetromino
     O, 
     S, 
     T, 
-    Z
+    Z,
+    unknow
 }
 
 [System.Serializable]
