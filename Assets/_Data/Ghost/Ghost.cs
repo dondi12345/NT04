@@ -17,7 +17,6 @@ public class Ghost : LoadBehaviour
 
     public bool isWorking = false;
 
-    public float timeDelay = 3;
     public float countDelay = 0; 
 
     public override void LoadComponents()
@@ -49,9 +48,11 @@ public class Ghost : LoadBehaviour
 
     protected void UpdatePieceChose(){
         this.countDelay += Time.fixedDeltaTime;
+        float time = TetrisManager.instance.timeDelaySelection - TetrisManager.instance.step /5;
+        if(time < 1) time = 1;
         foreach (PieceChose item in this.pieceChoses)
         {
-            item.UpdateTime(this.countDelay/ this.timeDelay);
+            item.UpdateTime(this.countDelay/ time);
         }
     }
 

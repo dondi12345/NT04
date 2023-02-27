@@ -20,6 +20,15 @@ public class TetrisManager : LoadBehaviour
 
     public Vector3Int spawnPosition = new Vector3Int(0, 7, 0);
 
+    public int timeMaxSpwan = 5;
+    public int step = 0;
+    public int currentMaxSpwan = 5;
+    public int countSpwan = 0;
+    public int timeDelaySelection = 7;
+
+    public int score = 0;
+    public GameOverUI gameOverUI;
+
     public RectInt Bounds {
         get
         {
@@ -61,6 +70,11 @@ public class TetrisManager : LoadBehaviour
         activePiece = transform.Find("ActivePiece").GetComponent<Piece>();
     }
 
+    protected override void OnEnable()
+    {
+        this.Replay();
+    }
+
     protected override void FixedUpdate()
     {
         if(this.ghost.isWorking) return;
@@ -86,6 +100,10 @@ public class TetrisManager : LoadBehaviour
     }
 
     public void SpawnPiece(Tetromino tetromino){
+        this.currentMaxSpwan = this.timeMaxSpwan - this.step / 10;
+        if(this.currentMaxSpwan <=0 ) this.currentMaxSpwan = 1;
+        this.step ++;
+
         // int random = Random.Range(0, tetrominoes.Length);
         TetrominoData data = this.GetTetrominoDataByCode(tetromino);
         // TetrominoData data = tetrominoes[1];
@@ -154,6 +172,7 @@ public class TetrisManager : LoadBehaviour
     public void GameOver(){
         this.isGameOver = true;
         Debug.LogWarning("Game Over");
+        this.gameOverUI.gameObject.SetActive(true);
     }
 
     public void Replay(){
@@ -161,6 +180,11 @@ public class TetrisManager : LoadBehaviour
         this.ghost.Replay();
         this.waiting.Replay();
         this.isGameOver = false;
+        this.currentMaxSpwan = this.timeMaxSpwan;
+        this.countSpwan = 0;
+        this.step = 0;
+        this.score = 0;
+        this.gameOverUI.gameObject.SetActive(false);
     }
 
     public void Hold(){

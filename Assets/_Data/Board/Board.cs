@@ -73,6 +73,7 @@ public class Board : LoadBehaviour
         {
             Vector3Int position = new Vector3Int(col, row, 0);
             tilemap.SetTile(position, null);
+            TetrisManager.instance.score += 10;
         }
 
         // Shift every row above down one
@@ -112,6 +113,9 @@ public class Board : LoadBehaviour
     }
 
     public void SpawnRow(){
+        TetrisManager.instance.countSpwan ++;
+        if(TetrisManager.instance.countSpwan < TetrisManager.instance.currentMaxSpwan) return;
+        TetrisManager.instance.countSpwan = 0;
         RectInt bounds = Bounds;
 
         int row = bounds.yMax;
@@ -126,7 +130,6 @@ public class Board : LoadBehaviour
                 tilemap.SetTile(position, under);
                 
             }
-            Debug.LogWarning(row);
             row--;
         }
 
